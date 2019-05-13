@@ -6,7 +6,10 @@
 // inside the project_config folder.
 
 // Make sure only one of the following is defined (CFG_us915 or CFG_eu868)
-#define CFG_us915 1
-//#define CFG_eu868 1
+//#define CFG_us915 1
+#define CFG_eu868 1
 
 #define CFG_sx1276_radio 1
+#define LMIC_DEBUG_LEVEL 2 //no effect :(
+
+#define CFG_LMIC_REGION_MASK 0

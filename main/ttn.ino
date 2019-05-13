@@ -34,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Globals
 // -----------------------------------------------------------------------------
 
+
 // LMIC GPIO configuration
 const lmic_pinmap lmic_pins = {
     .nss = NSS_GPIO,
@@ -115,7 +116,8 @@ bool ttn_setup() {
 
 void ttn_join() {
     // Reset the MAC state. Session and pending data transfers will be discarded.
-    LMIC_reset();
+     LMIC_reset();
+     DEBUG_MSG("TTN Reset\n");
 
     #ifdef USE_ABP
 

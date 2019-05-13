@@ -35,6 +35,11 @@ void sleep_millis(uint64_t ms) {
 }
 
 void sleep_seconds(uint32_t seconds) {
+    //ajout pour hibernation
+    esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_SLOW_MEM, ESP_PD_OPTION_OFF);
+    esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_FAST_MEM, ESP_PD_OPTION_OFF);
+    esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
+    //
     esp_sleep_enable_timer_wakeup(seconds * 1000000);
     esp_deep_sleep_start();
 }

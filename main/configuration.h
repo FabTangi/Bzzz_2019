@@ -33,7 +33,7 @@ void ttn_register(void (*callback)(uint8_t message));
 // Version
 // -----------------------------------------------------------------------------
 
-#define APP_NAME                "TTN MAP-TRACK"
+#define APP_NAME                "BZZZ PESEE"
 #define APP_VERSION             "1.0.0"
 
 // -----------------------------------------------------------------------------
@@ -43,13 +43,14 @@ void ttn_register(void (*callback)(uint8_t message));
 #define DEBUG_PORT              Serial      // Serial debug port
 #define SERIAL_BAUD             115200      // Serial debug baud rate
 #define SLEEP_BETWEEN_MESSAGES  0           // Do sleep between messages
-#define SEND_INTERVAL           30000       // Sleep for these many millis
+#define SEND_INTERVAL           120000       // Sleep for these many millis
 #define MESSAGE_TO_SLEEP_DELAY  5000        // Time after message before going to sleep
 #define LOGO_DELAY              5000        // Time to show logo on first boot
+#define HX711_DELAY             1000        // Delai avant 1ere acquisition HX711
 #define LORAWAN_PORT            10          // Port the messages will be sent to
 #define LORAWAN_CONFIRMED_EVERY 0           // Send confirmed message every these many messages (0 means never)
 #define LORAWAN_SF              DR_SF7      // Spreading factor
-#define LORAWAN_ADR             0           // Enable ADR
+#define LORAWAN_ADR             1           // Enable ADR
 #define GPS_WAIT_FOR_LOCK       5000        // Wait 5s after every boot for GPS lock
 
 // -----------------------------------------------------------------------------
@@ -61,6 +62,8 @@ void ttn_register(void (*callback)(uint8_t message));
 #else
 #define DEBUG_MSG(...)
 #endif
+
+
 
 // -----------------------------------------------------------------------------
 // Custom messages
@@ -89,12 +92,12 @@ void ttn_register(void (*callback)(uint8_t message));
 // -----------------------------------------------------------------------------
 // GPS
 // -----------------------------------------------------------------------------
-
+/*
 #define GPS_SERIAL_NUM  1
 #define GPS_RX_PIN      12
 #define GPS_TX_PIN      15
 #define GPS_BAUDRATE    9600
-
+*/
 // -----------------------------------------------------------------------------
 // LoRa SPI
 // -----------------------------------------------------------------------------

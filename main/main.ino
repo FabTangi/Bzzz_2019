@@ -23,8 +23,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "configuration.h"
 #include <rom/rtc.h>
+#include <WiFi.h>
+#include <soc/rtc.h>
 
-uint8_t txBuffer[9];
+uint8_t txBuffer[4];
+
+const uint8_t vbatPin = 35; //35
+float VBAT; // battery voltage from ESP32 ADC read
+float poids; 
 
 // Message counter, stored in RTC memory, survives deep sleep
 RTC_DATA_ATTR uint32_t count = 0;
@@ -35,14 +41,22 @@ RTC_DATA_ATTR uint32_t count = 0;
 
 void send() {
     char buffer[40];
-    snprintf(buffer, sizeof(buffer), "Latitude: %10.6f\n", gps_latitude());
-    screen_print(buffer);
-    snprintf(buffer, sizeof(buffer), "Longitude: %10.6f\n", gps_longitude());
-    screen_print(buffer);
-    snprintf(buffer, sizeof(buffer), "Error: %4.2fm\n", gps_hdop());
-    screen_print(buffer);
 
-    buildPacket(txBuffer);
+     //Add some extra info like battery, temperature....
+    // Battery Voltage
+    VBAT = (float)(analogRead(vbatPin)) / 4095*2*3.3*1.1;
+    Serial.println("Voltage: " + String(VBAT));            
+    snprintf(buffer, sizeof(buffer), "Battery: %10.3f\n", VBAT);
+    screen_print(buffer);     
+    //Poids   
+    poids = get_weigth();    
+    snprintf(buffer, sizeof(buffer), "Poids en gr: %10.3f\n", poids);
+    screen_print(buffer);
+    //Charge Lora
+    txBuffer[0] = highByte((int)round(VBAT*100));
+    txBuffer[1] = lowByte((int)round(VBAT*100)); 
+    txBuffer[2] = highByte((int)round(poids*100));
+    txBuffer[3] = lowByte((int)round(poids*100));
 
     #if LORAWAN_CONFIRMED_EVERY > 0
         bool confirmed = (count % LORAWAN_CONFIRMED_EVERY == 0);
@@ -52,7 +66,7 @@ void send() {
 
     ttn_cnt(count);
     ttn_send(txBuffer, sizeof(txBuffer), LORAWAN_PORT, confirmed);
-
+    
     count++;
 }
 
@@ -77,6 +91,10 @@ void sleep() {
         // this way we distribute the messages evenly every SEND_INTERVAL millis
         uint32_t sleep_for = (millis() < SEND_INTERVAL) ? SEND_INTERVAL - millis() : SEND_INTERVAL;
         sleep_millis(sleep_for);
+
+        //Set Frequency to 80M again, as it is not kept during sleep  
+        rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M);
+    
 
     #endif
 }
@@ -120,10 +138,15 @@ uint32_t get_count() {
 
 void setup() {
     // Debug
+    int freq1,freq2;
     #ifdef DEBUG_PORT
         DEBUG_PORT.begin(SERIAL_BAUD);
     #endif
-
+    freq1 = rtc_clk_cpu_freq_get();
+    rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M);
+    freq2 = rtc_clk_cpu_freq_get();
+    Serial.println(freq1);
+    Serial.println(freq2);
     // Buttons & LED
     pinMode(BUTTON_PIN, INPUT_PULLUP);
     pinMode(LED_PIN, OUTPUT);
@@ -134,8 +157,9 @@ void setup() {
     // Display
     screen_setup();
 
-    // Init GPS
-    gps_setup();
+    //Disable radiozz`
+    WiFi.mode(WIFI_OFF); 
+    btStop();
 
     // Show logo on first boot
     if (0 == count) {
@@ -146,21 +170,24 @@ void setup() {
     }
 
     // TTN setup
+    DEBUG_MSG("TTN Setup" "\n");
     if (!ttn_setup()) {
         screen_print("[ERR] Radio module not found!\n");
+        DEBUG_MSG("Radio Module not found\n");
         delay(MESSAGE_TO_SLEEP_DELAY);
         screen_off();
         sleep_forever();
     }
 
     ttn_register(callback);
+    DEBUG_MSG("TTN Join\n");
     ttn_join();
     ttn_sf(LORAWAN_SF);
     ttn_adr(LORAWAN_ADR);
+    DEBUG_MSG("TTN Finished\n");
 }
 
-void loop() {
-    gps_loop();
+void loop() {   
     ttn_loop();
     screen_loop();
 
@@ -168,18 +195,10 @@ void loop() {
     static uint32_t last = 0;
     static bool first = true;
     if (0 == last || millis() - last > SEND_INTERVAL) {
-        if (0 < gps_hdop() && gps_hdop() < 50 && gps_latitude() != 0 && gps_longitude() != 0) {
-            last = millis();
-            first = false;
-            send();
-        } else {
-            if (first) {
-                screen_print("Waiting GPS lock\n");
-                first = false;
-            }
-            if (millis() > GPS_WAIT_FOR_LOCK) {
-                sleep();
-            }
+        last = millis();
+        first = false;
+        send();
+        
         }
-    }
+    
 }
