@@ -13,9 +13,9 @@ Allumer le teminal et l'écran devrait vous donner des informations...
 
 #### Dépendances Bibliothèques Arduino
 
- - [mcci-catena/arduino-lmic](https://github.com/mcci-catena/arduino-lmic)
- - HX711
- - [ThingPulse/esp8266-oled-ssd1306](https://github.com/ThingPulse/esp8266-oled-ssd1306)
+ - [mcci-catena/arduino-lmic](https://github.com/mcci-catena/arduino-lmic) version 2.3.2
+ - [HX711](https://github.com/bogde/HX711) version 0.7.2.0
+ - [ThingPulse/esp8266-oled-ssd1306](https://github.com/ThingPulse/esp8266-oled-ssd1306) version 4.0.0
 
 ### A Faire
 
