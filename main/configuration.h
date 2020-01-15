@@ -42,9 +42,9 @@ void ttn_register(void (*callback)(uint8_t message));
 
 #define DEBUG_PORT              Serial      // Serial debug port
 #define SERIAL_BAUD             115200      // Serial debug baud rate
-#define SLEEP_BETWEEN_MESSAGES  0           // Do sleep between messages
+#define SLEEP_BETWEEN_MESSAGES  1           // Do sleep between messages
 #define SEND_INTERVAL           120000       // Sleep for these many millis
-#define MESSAGE_TO_SLEEP_DELAY  5000        // Time after message before going to sleep
+#define MESSAGE_TO_SLEEP_DELAY  2000        // Time after message before going to sleep
 #define LOGO_DELAY              5000        // Time to show logo on first boot
 #define HX711_DELAY             1000        // Delai avant 1ere acquisition HX711
 #define LORAWAN_PORT            10          // Port the messages will be sent to

@@ -42,7 +42,7 @@ RTC_DATA_ATTR uint32_t count = 0;
 void send() {
     char buffer[40];
 
-     //Add some extra info like battery, temperature....
+    //Add some extra info like battery, temperature....
     // Battery Voltage
     VBAT = (float)(analogRead(vbatPin)) / 4095*2*3.3*1.1;
     Serial.println("Voltage: " + String(VBAT));            
@@ -82,7 +82,7 @@ void sleep() {
         delay(MESSAGE_TO_SLEEP_DELAY);
 
         // Turn off screen
-        screen_off();
+        //screen_off();
 
         // Set the user button to wake the board
         sleep_interrupt(BUTTON_PIN, LOW);
@@ -151,6 +151,8 @@ void setup() {
     pinMode(BUTTON_PIN, INPUT_PULLUP);
     pinMode(LED_PIN, OUTPUT);
 
+    //Print the wakeup reason for ESP32
+    print_wakeup_reason(); 
     // Hello
     DEBUG_MSG(APP_NAME " " APP_VERSION "\n");
 
@@ -201,4 +203,25 @@ void loop() {
         
         }
     
+}
+
+void print_wakeup_reason() {
+
+  digitalWrite(BUILTIN_LED, HIGH);
+   esp_sleep_wakeup_cause_t wakeup_reason;
+     String reason = "";
+ 
+     wakeup_reason = esp_sleep_get_wakeup_cause(); 
+ 
+     switch(wakeup_reason)
+     {
+          case 1 :reason = "EXT0 RTC_IO BTN"; break;
+          case 2 :reason = "EXT1 RTC_CNTL";   break;
+          case 3 :reason = "TIMER";           break;
+          case 4 :reason = "TOUCHPAD";        break;
+          case 5 :reason = "ULP PROGRAM";     break;
+          default :reason = "NO DS CAUSE";    break;
+     }
+     Serial.println(reason);   
+
 }
